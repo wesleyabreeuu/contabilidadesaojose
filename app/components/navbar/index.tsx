@@ -1,35 +1,49 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 const links = [
   { href: "#quem-somos", label: "Quem Somos" },
   { href: "#servicos", label: "Serviços" },
   { href: "#equipe", label: "Equipe" },
-  { href: "#numeros", label: "Numeros" }, // mantém o id #numeros
+  { href: "#numeros", label: "Números" },
   { href: "#contato", label: "Contato" },
 ];
 
 const WA_URL =
-  "https://wa.me/5524981326908?text=Ol%C3%A1%2C%20vim%20pelo%20site%20da%20Contabilidade%20S%C3%A3o%20Jos%C3%A9.";
+  "https://wa.me/5524981326908?text=Olá%2C%20vim%20pelo%20site%20da%20Contabilidade%20São%20José.";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [compact, setCompact] = useState(false);
+  const lastScrollY = useRef(0);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => {
+      const currentY = window.scrollY;
+      const scrollingUp = currentY < lastScrollY.current;
+
+      if (currentY < 24) {
+        setCompact(false);
+      } else if (scrollingUp && currentY < 110) {
+        setCompact(false);
+      } else if (currentY > 56) {
+        setCompact(true);
+      }
+
+      lastScrollY.current = currentY;
+    };
+
     onScroll();
-    window.addEventListener("scroll", onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // scroll suave com compensação da navbar
   const scrollToId = (hash: string) => {
     const el = document.querySelector(hash) as HTMLElement | null;
     if (!el) return;
-    // Se você usa Tailwind `scroll-mt-*` nas seções, o offset já é tratado.
     el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
@@ -46,113 +60,143 @@ export default function Navbar() {
   };
 
   return (
-    <header
-      className={[
-        "sticky top-0 z-50 w-full transition-all",
-        "bg-black/90 backdrop-blur supports-[backdrop-filter]:bg-black/70",
-        scrolled ? "shadow-[0_1px_0_0_rgba(255,255,255,0.08)]" : "",
-      ].join(" ")}
-      role="banner"
-    >
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:py-4 lg:px-6">
-        {/* Brand -> Topo */}
-        <Link
-          href="/"
-          onClick={handleBrand}
-          className="inline-flex items-center gap-2 text-base font-semibold tracking-tight text-white md:text-lg"
+    <header className="fixed inset-x-0 top-0 z-50" role="banner">
+      <div className="px-3 pt-3 sm:px-5 sm:pt-5">
+        <div
+          className={[
+            "mx-auto grid w-full items-center transition-all duration-300 ease-out",
+            compact
+              ? "max-w-[58rem] grid-cols-[minmax(0,12rem)_1fr_auto] rounded-[1.25rem] border border-white/10 bg-[rgba(9,14,23,0.88)] px-4 py-3 shadow-[0_20px_80px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:px-5"
+              : "max-w-7xl grid-cols-[auto_1fr_auto] rounded-none bg-transparent px-4 py-4 sm:px-6 lg:px-8",
+          ].join(" ")}
         >
-          <span className="relative">
-            Contabilidade São José
-            <span className="absolute -bottom-1 left-0 h-[2px] w-4 rounded-full bg-blue-500/70"></span>
-          </span>
-        </Link>
-
-        {/* Links (desktop) */}
-        <nav className="hidden md:block" aria-label="Main">
-          <ul className="flex items-center gap-6 lg:gap-8">
-            {links.map((l) => (
-              <li key={l.href}>
-                <Link
-                  href={l.href}
-                  onClick={(e) => handleAnchor(e, l.href)}
-                  className="group relative text-sm font-medium text-white/90 transition-colors hover:text-white"
-                >
-                  {l.label}
-                  <span className="pointer-events-none absolute -bottom-1 left-0 h-[2px] w-0 rounded bg-blue-500 transition-all duration-300 group-hover:w-full" />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        {/* CTA (desktop) -> WhatsApp */}
-        <div className="hidden md:block">
-          <a
-            href={WA_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+          <Link
+            href="/"
+            onClick={handleBrand}
+            className={[
+              "inline-flex min-w-0 items-center text-white",
+              compact ? "gap-3" : "gap-3.5",
+            ].join(" ")}
           >
-            Fale Conosco
-          </a>
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/18 bg-[rgba(255,255,255,0.08)]">
+              <Image
+                src="/logo.jpg"
+                alt="Logo Contabilidade São José"
+                width={40}
+                height={40}
+                className="h-full w-full object-cover"
+                priority
+              />
+            </span>
+
+            <span
+              className={[
+                "min-w-0 font-semibold tracking-tight",
+                compact ? "flex flex-col leading-[1.05] text-[0.88rem]" : "text-sm sm:text-base",
+              ].join(" ")}
+            >
+              {compact ? (
+                <>
+                  <span>Contabilidade</span>
+                  <span>São José</span>
+                </>
+              ) : (
+                <span>Contabilidade São José</span>
+              )}
+            </span>
+          </Link>
+
+          <nav className="hidden md:flex md:justify-center" aria-label="Main">
+            <ul
+              className={[
+                "flex items-center text-white/85",
+                compact ? "gap-4 lg:gap-6" : "gap-6 lg:gap-8",
+              ].join(" ")}
+            >
+              {links.map((l) => (
+                <li key={l.href}>
+                  <Link
+                    href={l.href}
+                    onClick={(e) => handleAnchor(e, l.href)}
+                    className={[
+                      "font-medium transition hover:text-white",
+                      compact ? "text-[0.95rem]" : "text-sm",
+                    ].join(" ")}
+                  >
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <div className="hidden md:flex md:justify-end">
+            <a
+              href={WA_URL}
+              target="_blank"
+              rel="noreferrer"
+              className={[
+                "inline-flex items-center justify-center font-semibold transition",
+                compact
+                  ? "min-h-[3.65rem] rounded-[1rem] bg-white px-5 text-[0.95rem] text-slate-950 hover:bg-white/92"
+                  : "rounded-[0.95rem] bg-[rgba(9,14,23,0.88)] px-5 py-3 text-sm text-white hover:bg-[rgba(9,14,23,0.96)]",
+              ].join(" ")}
+            >
+              Falar conosco
+            </a>
+          </div>
+
+          <button
+            onClick={() => setOpen((v) => !v)}
+            className="ml-auto inline-flex items-center justify-center rounded-xl p-2 text-white transition hover:bg-white/10 md:hidden"
+            aria-expanded={open}
+            aria-label="Abrir menu"
+          >
+            {open ? (
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            ) : (
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            )}
+          </button>
         </div>
 
-        {/* Botão mobile */}
-        <button
-          onClick={() => setOpen((v) => !v)}
-          className="inline-flex items-center justify-center rounded-md p-2 text-white/90 outline-none ring-0 transition hover:bg-white/10 md:hidden"
-          aria-expanded={open}
-          aria-label="Abrir menu"
+        <div
+          className={[
+            "mx-auto overflow-hidden transition-all duration-250 ease-out md:hidden",
+            open ? "mt-2 max-h-[420px] max-w-[58rem] opacity-100" : "max-h-0 max-w-[58rem] opacity-0",
+          ].join(" ")}
         >
-          {open ? (
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          ) : (
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          )}
-        </button>
-      </div>
-
-      {/* Menu mobile */}
-      <div
-        className={[
-          "md:hidden",
-          "origin-top transition-all duration-200 ease-out",
-          open ? "max-h-[420px] opacity-100" : "max-h-0 opacity-0",
-        ].join(" ")}
-      >
-        <nav
-          className="mx-2 mb-2 overflow-hidden rounded-xl border border-white/10 bg-black/90 backdrop-blur"
-          aria-label="Mobile"
-        >
-          <ul className="grid gap-1 p-2">
-            {links.map((l) => (
-              <li key={l.href}>
-                <Link
-                  href={l.href}
-                  onClick={(e) => handleAnchor(e, l.href)}
-                  className="block rounded-lg px-4 py-3 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-white"
+          <nav className="rounded-[1.15rem] border border-white/10 bg-[rgba(9,14,23,0.92)] p-2 shadow-[0_20px_80px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+            <ul className="grid gap-1">
+              {links.map((l) => (
+                <li key={l.href}>
+                  <Link
+                    href={l.href}
+                    onClick={(e) => handleAnchor(e, l.href)}
+                    className="block rounded-xl px-4 py-3 text-sm font-medium text-white/88 transition hover:bg-white/8 hover:text-white"
+                  >
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+              <li className="pt-1">
+                <a
+                  href={WA_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={() => setOpen(false)}
+                  className="block rounded-xl bg-white px-4 py-3 text-center text-sm font-semibold text-slate-950 transition hover:bg-white/92"
                 >
-                  {l.label}
-                </Link>
+                  Falar conosco
+                </a>
               </li>
-            ))}
-            <li className="pt-1">
-              <a
-                href={WA_URL}
-                target="_blank"
-                rel="noreferrer"
-                onClick={() => setOpen(false)}
-                className="mb-2 block rounded-lg bg-blue-600 px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-blue-700"
-              >
-                Fale Conosco
-              </a>
-            </li>
-          </ul>
-        </nav>
+            </ul>
+          </nav>
+        </div>
       </div>
     </header>
   );

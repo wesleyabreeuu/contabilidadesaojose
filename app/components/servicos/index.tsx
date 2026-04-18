@@ -3,7 +3,7 @@
 type Item = {
   title: string;
   body: string;
-  pos: string; // classes utilitárias de posição na grid
+  pos: string;
 };
 
 const items: Item[] = [
@@ -41,36 +41,28 @@ const items: Item[] = [
 
 export default function ServicosStaggered() {
   return (
-    <section id="servicos" className="bg-neutral-950 py-14 sm:py-16 lg:py-20">
+    <section id="servicos" className="section-shell bg-[var(--surface)]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Título */}
-        <h2 className="mb-12 text-center text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
-          Serviços <span className="text-blue-500">oferecidos</span>
-        </h2>
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-sm font-medium uppercase tracking-[0.24em] text-[var(--accent-soft)]">Serviços</p>
+          <h2 className="mt-4 text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+            Soluções contábeis pensadas para sustentar cada fase da empresa.
+          </h2>
+          <p className="mt-5 text-base leading-7 text-[var(--muted)] sm:text-lg">
+            Do início da operação à rotina mensal, a Contabilidade São José oferece suporte completo para
+            manter sua empresa organizada e segura.
+          </p>
+        </div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-6">
+        <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-6">
           {items.map((it, idx) => (
             <article
               key={idx}
-              className={`
-                rounded-2xl border border-white/5 bg-neutral-900/60 p-6 text-center 
-                shadow-[0_10px_30px_rgba(0,0,0,.35)] backdrop-blur 
-                transition duration-300 
-                hover:shadow-[0_0_25px_rgba(37,99,235,0.45)] 
-                hover:scale-[1.03]
-                ${it.pos}
-              `}
+              className={`rounded-[2rem] border border-white/10 bg-white/6 p-7 text-left shadow-[0_20px_80px_rgba(2,8,23,.3)] backdrop-blur transition duration-300 hover:-translate-y-1 hover:border-white/18 hover:shadow-[0_35px_120px_rgba(15,23,42,0.45)] ${it.pos}`}
             >
-              <h3 className="mb-3 text-lg font-semibold text-white">
-                <span className="block text-xl sm:text-2xl text-blue-500">
-                  {it.title}
-                </span>
-              </h3>
-
-              <p className="text-sm leading-relaxed text-neutral-300 sm:text-base">
-                {it.body}
-              </p>
+              <div className="mb-6 h-10 w-10 rounded-full border border-[var(--accent)]/30 bg-[var(--accent)]/12" />
+              <h3 className="mb-3 text-xl font-semibold text-white sm:text-2xl">{it.title}</h3>
+              <p className="text-sm leading-7 text-[var(--muted)] sm:text-base">{it.body}</p>
             </article>
           ))}
         </div>
@@ -78,5 +70,3 @@ export default function ServicosStaggered() {
     </section>
   );
 }
-
-
